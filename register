@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Agent Number Registration</title>
+<style>
+  /* General Body */
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f9f9f9, #ffe6e6);
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+
+  h2 {
+    margin-top: 50px;
+    color: #ff4d4d;
+    text-shadow: 1px 1px 2px #ffa6a6;
+  }
+
+  form {
+    background: white;
+    display: inline-block;
+    padding: 25px 40px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    margin-top: 30px;
+  }
+
+  input, select, button {
+    margin: 10px 0;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    outline: none;
+    transition: 0.3s;
+  }
+
+  input:focus, select:focus {
+    border-color: #ff4d4d;
+    box-shadow: 0 0 5px rgba(255,77,77,0.5);
+  }
+
+  button {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+
+  button:hover {
+    background: #ff1a1a;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255,0,0,0.3);
+  }
+
+  h3 {
+    margin-top: 50px;
+    color: #333;
+    text-shadow: 0px 0px 2px #aaa;
+  }
+
+  table {
+    margin: 20px auto;
+    border-collapse: collapse;
+    width: 80%;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+
+  th, td {
+    border: none;
+    padding: 15px;
+    background: #fff;
+  }
+
+  th {
+    background: #ff4d4d;
+    color: white;
+    text-transform: uppercase;
+  }
+
+  tr:nth-child(even) td {
+    background: #ffe6e6;
+  }
+
+  tr:hover td {
+    background: #ffd6d6;
+    transition: 0.3s;
+  }
+</style>
+</head>
+<body>
+
+<h2>Register Your Number</h2>
+
+<form id="agentForm">
+  <input type="text" id="name" placeholder="Your Name" required><br>
+  <input type="text" id="agentNumber" placeholder="Agent Number" required><br>
+  <select id="chosenNumber" required>
+    <option value="">Select a number from 1 to 56</option>
+  </select><br>
+  <button type="submit">Submit</button>
+</form>
+
+<h3>Registered Numbers</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Agent Number</th>
+      <th>Chosen Number</th>
+    </tr>
+  </thead>
+  <tbody id="recordsTable"></tbody>
+</table>
+
+<script>
+  let numbers = Array.from({length: 56}, (_, i) => i + 1);
+  const chosenNumberSelect = document.getElementById('chosenNumber');
+  const recordsTable = document.getElementById('recordsTable');
+  let records = JSON.parse(localStorage.getItem('records')) || [];
+
+  function updateNumberOptions() {
+    chosenNumberSelect.innerHTML = '<option value="">Select a number from 1 to 56</option>';
+    const usedNumbers = records.map(r => r.number);
+    numbers.forEach(n => {
+      if (!usedNumbers.includes(n)) {
+        const option = document.createElement('option');
+        option.value = n;
+        option.textContent = n;
+        chosenNumberSelect.appendChild(option);
+      }
+    });
+  }
+
+  function renderTable() {
+    recordsTable.innerHTML = '';
+    records.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.name}</td><td>${r.agentNumber}</td><td>${r.number}</td>`;
+      recordsTable.appendChild(tr);
+    });
+  }
+
+  document.getElementById('agentForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const agentNumber = document.getElementById('agentNumber').value;
+    const number = parseInt(document.getElementById('chosenNumber').value);
+
+    if (records.some(r => r.number === number)) {
+      alert('This number has already been chosen!');
+      return;
+    }
+
+    records.push({name, agentNumber, number});
+    localStorage.setItem('records', JSON.stringify(records));
+    updateNumberOptions();
+    renderTable();
+
+    this.reset();
+  });
+
+  updateNumberOptions();
+  renderTable();
+</script>
+
+</body>
+</html>
